@@ -1,5 +1,6 @@
 package basicgraph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,9 +117,50 @@ public abstract class Graph {
 	 * 
 	 * @return The degree sequence of this graph.
 	 */
+	public int findMaxIndex(List<Integer> list) {
+		int max = 0;
+		int maxIndex = 0;
+		for (int i=0; i<list.size(); i++) {
+			if (list.get(i) > max) {
+				max = list.get(i);
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
+	}
+	
 	public List<Integer> degreeSequence() {
 		// XXX: Implement in part 1 of week 2
-		return null;
+		// you will find the following two provided methods very helpful for this part:
+			// getNeighbors(int v) -- returns a list containing the integer indices of vertices appearing as the end point of edges starting at v
+				// note - if there are multiple edges between v and one of its neighbors, then that neighbor appears multiple times in this list
+			// getInNeighbors(int v) -- similar to above except returning list of indices of vertices which are the start point of edges that end at v
+		List<Integer> degreeSequence = new ArrayList<Integer>();
+		List<Integer> retList = new ArrayList<Integer>();
+		
+		for (int i=0; i<numVertices; i++) {
+			List<Integer> neighbors = getNeighbors(i);
+			List<Integer> inNeighbors = getInNeighbors(i);
+			for (int j=0; j<neighbors.size(); j++) {
+				int neighbor = neighbors.get(j);
+				degreeSequence.add(neighbor);
+			}
+			for (int k=0; k<inNeighbors.size(); k++) {
+				int inNeighbor = inNeighbors.get(k);
+				degreeSequence.add(inNeighbor);
+			}
+		}
+		
+		while (!degreeSequence.isEmpty()) {
+			int maxIndex = findMaxIndex(degreeSequence);
+			if (maxIndex >= 0) {
+				retList.add(degreeSequence.get(maxIndex));
+				degreeSequence.remove(maxIndex);
+			} else if (maxIndex < 0) {
+				break;
+			}
+		}
+		return retList;
 	}
 	
 	/**
