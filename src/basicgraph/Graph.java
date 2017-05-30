@@ -141,14 +141,7 @@ public abstract class Graph {
 		for (int i=0; i<numVertices; i++) {
 			List<Integer> neighbors = getNeighbors(i);
 			List<Integer> inNeighbors = getInNeighbors(i);
-			for (int j=0; j<neighbors.size(); j++) {
-				int neighbor = neighbors.get(j);
-				degreeSequence.add(neighbor);
-			}
-			for (int k=0; k<inNeighbors.size(); k++) {
-				int inNeighbor = inNeighbors.get(k);
-				degreeSequence.add(inNeighbor);
-			}
+			degreeSequence.add(neighbors.size()+inNeighbors.size());
 		}
 		
 		while (!degreeSequence.isEmpty()) {
@@ -156,8 +149,6 @@ public abstract class Graph {
 			if (maxIndex >= 0) {
 				retList.add(degreeSequence.get(maxIndex));
 				degreeSequence.remove(maxIndex);
-			} else if (maxIndex < 0) {
-				break;
 			}
 		}
 		return retList;
