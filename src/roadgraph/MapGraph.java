@@ -7,8 +7,23 @@
  */
 package roadgraph;
 
+// in completing this implementation, we expect you do any or all of the following:
+	// add additional classes to the RoadGraph package
+	// add additional methods (usually private, but perhaps public as well) to the MapGraph class
+	// add member variables to the MapGraph class
+	// do not change signatures or semantics of any of the methods that already exist
+	// do not change any of the provided code in any other class
+	// do not add code or classes to any other package besides the RoadGraph package
+
 
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -24,7 +39,10 @@ import util.GraphLoader;
  */
 public class MapGraph {
 	//TODO: Add your member variables here in WEEK 3
+	private int numVertices;
+	private int numEdges;
 	
+	private Map<GeographicPoint, ArrayList<GeographicPoint>> adjListMap;
 	
 	/** 
 	 * Create a new empty MapGraph 
@@ -32,6 +50,9 @@ public class MapGraph {
 	public MapGraph()
 	{
 		// TODO: Implement in this constructor in WEEK 3
+		numVertices = 0;
+		numEdges = 0;
+		adjListMap = new HashMap<GeographicPoint, ArrayList<GeographicPoint>>();
 	}
 	
 	/**
@@ -41,7 +62,7 @@ public class MapGraph {
 	public int getNumVertices()
 	{
 		//TODO: Implement this method in WEEK 3
-		return 0;
+		return numVertices;
 	}
 	
 	/**
@@ -51,7 +72,11 @@ public class MapGraph {
 	public Set<GeographicPoint> getVertices()
 	{
 		//TODO: Implement this method in WEEK 3
-		return null;
+		Set<GeographicPoint> retSet = new HashSet<GeographicPoint>();
+		for (GeographicPoint gp: adjListMap.keySet()) {
+			retSet.add(gp);
+		}
+		return retSet;
 	}
 	
 	/**
@@ -61,10 +86,24 @@ public class MapGraph {
 	public int getNumEdges()
 	{
 		//TODO: Implement this method in WEEK 3
-		return 0;
+		return numEdges;
 	}
 
+	public List<GeographicPoint> getNeighbors(GeographicPoint gp) {
+		return new ArrayList<GeographicPoint>(adjListMap.get(gp));
+	}
 	
+	public List<GeographicPoint> getInNeighbors(GeographicPoint gp) {
+		List<GeographicPoint> inNeighbors = new ArrayList<GeographicPoint>();
+		for (GeographicPoint g: adjListMap.keySet()) {
+			for (GeographicPoint p: adjListMap.get(g)) {
+				if (gp == p) {
+					inNeighbors.add(g);
+				}
+			}
+		}
+		return inNeighbors;
+	}
 	
 	/** Add a node corresponding to an intersection at a Geographic Point
 	 * If the location is already in the graph or null, this method does 
@@ -76,6 +115,12 @@ public class MapGraph {
 	public boolean addVertex(GeographicPoint location)
 	{
 		// TODO: Implement this method in WEEK 3
+		if (!adjListMap.containsKey(location) && !location.equals(null)) {
+			ArrayList<GeographicPoint> neighbors = new ArrayList<GeographicPoint>();
+			adjListMap.put(location, neighbors);
+			numVertices++;
+			return true;
+		}
 		return false;
 	}
 	
@@ -95,7 +140,14 @@ public class MapGraph {
 			String roadType, double length) throws IllegalArgumentException {
 
 		//TODO: Implement this method in WEEK 3
-		
+		numEdges++;
+		if (adjListMap.containsKey(from) && adjListMap.containsKey(to) && 
+				!from.equals(null) && !to.equals(null) && length > 0 &&
+				!roadName.equals(null) && !roadType.equals(null)) {
+			adjListMap.get(from).add(to);
+		} else {
+			throw new IllegalArgumentException();
+		}
 	}
 	
 
@@ -125,9 +177,27 @@ public class MapGraph {
 	{
 		// TODO: Implement this method in WEEK 3
 		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
-
+		Queue<GeographicPoint> gpQueue = new LinkedList<GeographicPoint>(); 
+		Set<GeographicPoint> visited = new HashSet<GeographicPoint>();
+		List<GeographicPoint> path = new ArrayList<GeographicPoint>();
+		gpQueue.add(start);
+		visited.add(start);
+		while (!gpQueue.isEmpty()) {
+			GeographicPoint curr = gpQueue.remove();
+			if (curr.equals(goal)) {
+				path.add(goal);
+				return path;
+			}
+			List<GeographicPoint> neighbors = getNeighbors(curr);
+			for (GeographicPoint n: neighbors) {
+				if (!visited.contains(n)) {
+					visited.add(n);
+					path.add(curr);
+					gpQueue.add(n);
+					nodeSearched.accept(n);
+				}
+			}
+		}
 		return null;
 	}
 	
